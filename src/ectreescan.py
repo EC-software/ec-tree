@@ -6,12 +6,12 @@ Writes a file with the findings. """
 
 import os
 import datetime
-import math
+#import math
+import json
+import pprint
 import hashlib
 
-import pyhash
-
-rootDir = r"/home/martin/Desktop/foto"
+#import pyhash
 
 
 def hashafile(str_full_path, algorithm='md5', max_chunks=0):
@@ -50,18 +50,38 @@ def time_algos(str_full_path, dic_times=None):
 
 if __name__ == '__main__':
 
+    str_rootdir = r"/home/martin/Desktop/foto/Camera Uploads"
+
+    fil_ectree = open(str_rootdir+os.sep+'.ectree', 'w')  # Making sure we have write access.
+
     dic_tree = dict()
     max_chunks = 1
 
     dtt_start = datetime.datetime.now()
-    for dir, lst_subdir, lst_file in os.walk(rootDir):
+    for dir, lst_subdir, lst_file in os.walk(str_rootdir):
         for str_fn in lst_file:
-            if '.mp4' in str_fn.lower():
-                #dic_tree = time_algos(dir+os.sep+str_fn, dic_tree)
-                str_hash = hashafile(dir+os.sep+str_fn, 'sha1', max_chunks)
-                print("h: {} f: {}".format(str_hash, dir+os.sep+str_fn))
+            if str_fn.lower() != '.ectree':
+                str_fullfn = dir+os.sep+str_fn
+                #dic_tree = time_algos(str_fullfn, dic_tree)
+                str_hash = hashafile(str_fullfn, 'sha1', max_chunks)
+                #print("h: {} f: {}".format(str_hash, str_fullfn))
+                if not str_hash in dic_tree.keys():
+                    dic_tree[str_hash] = dict()
+                dic_tree[str_hash][str_fullfn] = dict()
+                dic_tree[str_hash][str_fullfn]['last_check'] = datetime.datetime.now().isoformat()
 
-    for key_a in sorted(dic_tree.keys()):  # only relevant when running time_algos()
-        print("k: {} t: {}".format(key_a, dic_tree[key_a]))
+    # Look for collisions
+    for key_short in dic_tree.keys():
+        if len(dic_tree[key_short].keys()) > 1:
+            print("collision_Short: {}".format(key_short))
+            for fil in dic_tree[key_short].keys():
+                str_hash_full = hashafile(str_fullfn, 'sha1', 0)
+                print("{} : {}".format(str_hash_full, fil))
+
+    #pprint.pprint(dic_tree)
 
     print("Done in: {} seconds".format((datetime.datetime.now() - dtt_start).total_seconds()))
+
+    json.dump(dic_tree, fil_ectree)
+
+    fil_ectree.close()
