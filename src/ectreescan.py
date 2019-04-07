@@ -51,12 +51,14 @@ def time_algos(str_full_path, dic_times=None):
 if __name__ == '__main__':
 
     str_rootdir = r"/home/martin/Desktop/foto"#/Camera Uploads"
+    str_rootdir = r"/home/output/.TMP"  # /Camera Uploads"
 
     fil_ectree = open(str_rootdir+os.sep+'.ectree', 'w')  # Making sure we have write access.
 
     dic_tree = dict()
     max_chunks = 1
 
+    print("Scanning: {}".format(str_rootdir))
     dtt_start = datetime.datetime.now()
     for dir, lst_subdir, lst_file in os.walk(str_rootdir):
         for str_fn in lst_file:
@@ -75,7 +77,7 @@ if __name__ == '__main__':
         if len(dic_tree[key_short].keys()) > 1:
             print("collision_Short: {}".format(key_short))
             for fil in dic_tree[key_short].keys():
-                print("  f: {}".format(fil))
+                #print("  f: {}".format(fil))
                 str_hash_full = hashafile(fil, 'sha1', 0)
                 dic_tree[key_short][fil]['hash_full'] = str_hash_full
                 dic_tree[key_short][fil]['last_check'] = datetime.datetime.now().isoformat()
