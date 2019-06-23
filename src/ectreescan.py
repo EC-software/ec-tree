@@ -53,7 +53,7 @@ def time_algos(str_full_path, dic_times=None):
 if __name__ == '__main__':
 
     str_rootdir = r"/home/martin/Desktop/foto" #/Camera Uploads"
-    str_rootdir = r"/run/media/martin/Seagate Backup Plus Drive/Martin/MUH/Pink_Floyd/Discography"
+    str_rootdir = r"/home/output/.TMP"
 
 
     fil_ectree = open(str_rootdir+os.sep+'.ectree', 'w')  # Making sure we have write access.
@@ -133,6 +133,9 @@ if __name__ == '__main__':
                         colis[0] += 1
                     if str_this_dir.find(str_othr_dir) >= 0:
                         other_colis[0] += 1
+    # Cibling directories prioritising
+    # TBD
+
     # write remove strings
     lst_rm = list()
     for long_colis in dic_long.keys():
