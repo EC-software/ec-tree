@@ -53,8 +53,7 @@ def time_algos(str_full_path, dic_times=None):
 if __name__ == '__main__':
 
     str_rootdir = r"/home/martin/Desktop/foto" #/Camera Uploads"
-    str_rootdir = r"/home/output/.TMP"
-
+    str_rootdir = r"/home/martin/Music"
 
     fil_ectree = open(str_rootdir+os.sep+'.ectree', 'w')  # Making sure we have write access.
     fil_longco = open(str_rootdir+os.sep+'collisions_remover.sh', "w")
@@ -85,7 +84,6 @@ if __name__ == '__main__':
                 dic_tree[key_short][fil]['hash_full'] = hashafile(fil, 'sha1', 0)  # Full Hash
                 dic_tree[key_short][fil]['last_check'] = datetime.datetime.now().isoformat()
                 dic_tree[key_short][fil]['size'] = os.stat(fil).st_size
-
 
     # timestamp the .ectree scan
     dic_tree['timestamp'] = datetime.datetime.now().isoformat()
@@ -145,7 +143,7 @@ if __name__ == '__main__':
             lst_rm.append(str_rm)
 
     # Write Longcollision file
-    print("Writing putput files: ")
+    print("Writing output files: ")
     for long_colis in dic_long.keys():
         fil_longco.write("# Collision : {}\n".format(long_colis))
         for colis in dic_long[long_colis]:
