@@ -58,6 +58,16 @@ def ect_upd_dir(str_dir):
         dic_ect[str_hash][fil_n]['size'] = os.stat(str_dir + os.sep + fil_n).st_size
         return dic_ect
 
+    # Consider
+    if r"/.cache/" in str_dir:
+        return  # Don't .ect in the cache area ...
+    # /.PyCharmCE2019.2/
+    # .eclipse
+    # .mozilla
+    # .thunderbird
+    # .config
+    # .local
+
     str_ect_ffn = str_dir + os.sep + ect_fn
     print("ect_upd: {}".format(str_ect_ffn))
     dic_ect = read_ect_file(str_ect_ffn)
@@ -126,4 +136,4 @@ def ect(str_dir):
 
 if __name__ == "__main__":
     #ect(__file__.rsplit(os.sep, 1)[0])  # run in current directory
-    ect(r"/home/martin/Downloads")  # run in specific directory
+    ect(r"/home/martin")  # run in specific directory
