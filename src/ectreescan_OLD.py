@@ -50,10 +50,7 @@ def time_algos(str_full_path, dic_times=None):
     return dic_times
 
 
-if __name__ == '__main__':
-
-    str_rootdir = r"/home/martin/Desktop/foto" #/Camera Uploads"
-    str_rootdir = r"/home/martin/Music"
+def main(str_rootdir, lst_protected_types):
 
     fil_ectree = open(str_rootdir+os.sep+'.ectree', 'w')  # Making sure we have write access.
     fil_longco = open(str_rootdir+os.sep+'collisions_remover.sh', "w")
@@ -65,15 +62,16 @@ if __name__ == '__main__':
     dtt_start = datetime.datetime.now()
     for dir, lst_subdir, lst_file in os.walk(str_rootdir):
         for str_fn in lst_file:
-            if str_fn.lower() != '.ectree':
-                str_fullfn = dir+os.sep+str_fn
-                #dic_tree = time_algos(str_fullfn, dic_tree)
-                str_hash = hashafile(str_fullfn, 'sha1', max_chunks)
-                #print("h: {} f: {}".format(str_hash, str_fullfn))
-                if not str_hash in dic_tree.keys():
-                    dic_tree[str_hash] = dict()
-                dic_tree[str_hash][str_fullfn] = dict()
-                dic_tree[str_hash][str_fullfn]['last_check'] = datetime.datetime.now().isoformat()
+            if '.' in str_fn and str_fn.rsplit('.', 1)[1] not in lst_protected_types:
+                if str_fn.lower() != '.ectree':
+                    str_fullfn = dir+os.sep+str_fn
+                    #dic_tree = time_algos(str_fullfn, dic_tree)
+                    str_hash = hashafile(str_fullfn, 'sha1', max_chunks)
+                    #print("h: {} f: {}".format(str_hash, str_fullfn))
+                    if not str_hash in dic_tree.keys():
+                        dic_tree[str_hash] = dict()
+                    dic_tree[str_hash][str_fullfn] = dict()
+                    dic_tree[str_hash][str_fullfn]['last_check'] = datetime.datetime.now().isoformat()
 
     # Look for short, collisions
     print("Looking through short collisions: {}".format(str_rootdir))
@@ -114,9 +112,13 @@ if __name__ == '__main__':
 
     # Try to prioritise which long-collision copy to keep
     # Filename contains specific strings
-    lst_mad_words = ['copy', 'cpy', 'backup', 'extra', '(1)']
+    lst_mad_words = ['copy', 'cpy', 'backup', 'extra', '(1)', '.lnk']
+    lst_god_words = ['FREE', 'COMM']
     for long_colis in dic_long.keys():
         for colis in dic_long[long_colis]:
+            for str_god in lst_god_words:
+                if str_god in colis[1]:
+                    colis[0] -= 1
             for str_mad in lst_mad_words:
                 if str_mad in colis[1]:
                     colis[0] += 1
@@ -153,3 +155,14 @@ if __name__ == '__main__':
     fil_longco.close()
 
     print("Done in: {} seconds".format(num_run_dur))
+
+
+if __name__ == '__main__':
+
+    str_rootdir = r"/home/martin/Desktop/foto" #/Camera Uploads"
+    str_rootdir = r"/home/martin/Music"
+    str_rootdir = r"/home/martin/Guru_and_Books"
+
+    lst_protected_types = ['gif','svg','js','jpg','png','html','css','py','js','doc','wav']
+
+    main(str_rootdir, lst_protected_types)

@@ -7,6 +7,7 @@ import datetime
 import json
 
 str_rootdir = r"/home/martin/Desktop/foto"  # /Camera Uploads"
+str_rootdir = r"/home/martin/Guru_and_Books"
 
 with open(str_rootdir + os.sep + '.ectree', 'r') as fil_tree:
     dic_tree = json.load(fil_tree)
