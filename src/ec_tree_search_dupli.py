@@ -15,6 +15,7 @@ def join_dics(dic_a, dic_b):
         else:
             for key_bhf in dic_b[key_bh].keys():
                 if key_bhf in dic_a[key_bh].keys():  # Bummer - same file name in two dirs
+                    print("Huston whap: {}".format(key_bhf))
     return dic_a
 
 def ect_acc(str_dir, dic_ect_acc=dict()):
@@ -23,6 +24,7 @@ def ect_acc(str_dir, dic_ect_acc=dict()):
     for itm in lst_only_dirs:
         ect_acc(str_dir + os.sep + itm, dic_ect_acc)  # First go into sub directories
         str_ect_ffn = str_dir + os.sep + itm  # Then add the local .ect on the way back
+        print("ffn: {}".format(str_ect_ffn))
         dic_ect = ectb.read_ect_file(str_ect_ffn)
         for key_h in dic_ect.keys():
             for key_f in dic_ect[key_h].keys():

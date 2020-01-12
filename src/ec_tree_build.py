@@ -120,3 +120,4 @@ def ect(str_dir):
 if __name__ == "__main__":
     #ect(__file__.rsplit(os.sep, 1)[0])  # run in current directory
     ect(r"/home/martin/Downloads")  # run in specific directory
+
