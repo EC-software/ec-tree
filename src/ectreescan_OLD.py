@@ -162,6 +162,7 @@ if __name__ == '__main__':
     str_rootdir = r"/home/martin/Desktop/foto" #/Camera Uploads"
     str_rootdir = r"/home/martin/Music"
     str_rootdir = r"/home/martin/Guru_and_Books"
+    str_rootdir = r"/home/output/.TMP"
 
     lst_protected_types = ['gif','svg','js','jpg','png','html','css','py','js','doc','wav']
 
