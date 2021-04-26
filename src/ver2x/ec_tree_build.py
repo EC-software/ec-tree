@@ -1,7 +1,7 @@
 
 
 """ Bla, bla, bla ...
-Recursive, distributed solution. Maintains a .ect file en every dir """
+Recursive, distributed solution. Maintains an .ect file en every dir """
 
 import os
 import datetime

@@ -23,13 +23,16 @@ def hashafile(str_full_path, algorithm='md5', max_chunks=0):
         hash_alg = hashlib.new(algorithm)
     else:
         hash_alg = hashlib.md5()  # It's our default
-    with open(str_full_path, "rb") as f:
-        num_chunk = 0
-        for chunk in iter(lambda: f.read(65536), b""):  # 64k buffer
-            hash_alg.update(chunk)
-            num_chunk += 1
-            if max_chunks > 0 and num_chunk >= max_chunks:
-                return hash_alg.hexdigest()
+    try:
+        with open(str_full_path, "rb") as f:
+            num_chunk = 0
+            for chunk in iter(lambda: f.read(65536), b""):  # 64k buffer
+                hash_alg.update(chunk)
+                num_chunk += 1
+                if max_chunks > 0 and num_chunk >= max_chunks:
+                    return hash_alg.hexdigest()
+    except IsADirectoryError:  # It wont let me delete that dir ...
+        pass
     return hash_alg.hexdigest()
 
 def time_algos(str_full_path, dic_times=None):
@@ -161,9 +164,10 @@ if __name__ == '__main__':
 
     str_rootdir = r"/home/martin/Desktop/foto" #/Camera Uploads"
     str_rootdir = r"/home/martin/Music"
-    str_rootdir = r"/home/martin/Guru_and_Books"
-    str_rootdir = r"/home/output/.TMP"
+    str_rootdir = r"/run/media/martin/SAMSUNG/FILM/c_Voksen/_James_Bond_007"
 
     lst_protected_types = ['gif','svg','js','jpg','png','html','css','py','js','doc','wav']
 
     main(str_rootdir, lst_protected_types)
+
+    # THIS IT WHAT YOU ARE LOOKING FOR - THAT WORKS ...
