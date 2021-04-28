@@ -31,6 +31,14 @@ ver. 3.x - DB based
 
 **Initialise** an empty db, if it does not exist.
 
+### ectar(dir)
+
+**Add root** to the db
+
+### ectrr(dir)
+
+**Remove root** from the db
+
 ### ectsc(dir, dir, ...)
 
 **Scan** tree(s) to update the db. If dir is given, only scan dir, otherwise scan all trees known to the db. Non-mounted trees are ignored silently. Updates all info about each file, except longhash. 
