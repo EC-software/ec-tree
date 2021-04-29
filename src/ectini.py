@@ -9,9 +9,8 @@ print(f"INI has a SQLite connection: {db}")
 
 # Make tables if not exists
 db.execute('CREATE TABLE IF NOT EXISTS roots ('
-           'id INTEGER PRIMARY KEY, '
            'mode INTEGER NOT NULL, '
-           'path varchar NOT NULL)')
+           'path varchar NOT NULL PRIMARY KEY)')
 db.execute('CREATE TABLE IF NOT EXISTS files ('
            'id INTEGER PRIMARY KEY, '
            'filename varchar NOT NULL, '
