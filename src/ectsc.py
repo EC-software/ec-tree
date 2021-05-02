@@ -61,6 +61,15 @@ def add_file2db(str_ffn):
     except FileNotFoundError:
         pass  # some files are very temporary ...
 
+def add_longhash_2_shorthash(shorthash):
+    str_sql_sel = f"select * from files where shorthash = '{shorthash}'"
+    for row in db.execute(str_sql_sel):
+        print(f"* {row}")
+        if os.path.isfile(row[0]):
+            str_longhash = co.hashafile(row[0], algorithm='sha1', max_chunks=1)
+            str_sql_update
+
+
 def scan_root(str_ri, lst_rx):
     """
     Scan one root-dir lst_ri, but skipping sub-dirs listed in lst_rx
@@ -105,6 +114,15 @@ if __name__ == '__main__':
     print(f"SC has a SQLite connection: {db}")
     print(f"argvar: {sys.argv[1:]}")
 
+    # fill/update the db
     lst_ri, lst_rx = make_rootlists()
     print(f"main(); Go w: {lst_ri, lst_rx}")
-    scan_rootlists(lst_ri, lst_rx)
+    ##scan_rootlists(lst_ri, lst_rx)
+
+    # Look for collisions
+    str_sql = f"SELECT * FROM collision_short"
+    for row in db.execute(str_sql):
+        ##print(f"scan_root(); known file: {row}")
+        if row[0] > 3:  # several files with this short-hash  ToDo reset to 1
+            print(row)
+            add_longhash_2_shorthash(row[1])
