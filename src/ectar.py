@@ -6,14 +6,14 @@ import ectcommon as co
 
 
 db = co.db()
-print(f"AR has a SQLite connection: {db}")
+##print(f"AR has a SQLite connection: {db}")
 
 
 def add_root(db, str_root, str_mode):
     """ Add a str_root and str_mode to the db, if not all ready known to the db
     :param db: tha data base
     :param str_root: the root - a string describing a directory path
-    :param str_mode: the mode - a string containing 'O' or 'X' (include or exclude)
+    :param str_mode: the mode - a string containing 'I' or 'X' (include or exclude)
     :return: n/a
     """
     bol_known = False  # Assume unknown to the db, until proven otherwise
@@ -26,7 +26,12 @@ def add_root(db, str_root, str_mode):
         db.commit()
 
 
-def main():
-    if len(sys.argv) > 1:
-        str_root = sys.argv[1]
-        add_root(db, str_root, 'O')
+if __name__ == "__main__":
+    if len(sys.argv) > 2:
+        str_mode = sys.argv[1]
+        str_root = sys.argv[2]
+        add_root(db, str_root, str_mode)
+        # ToDo Check for nested roots with same mode
+        # ToDo Check for samme root with opposite mode
+    else:
+        print(f"Expected command line parameter as input: <mode> <path>, found: {sys.argv[1:]}")
