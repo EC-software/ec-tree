@@ -87,7 +87,7 @@ def scan_root(str_ri, lst_rx):
                     if tim == dic_db[str_ffn][1] and siz == dic_db[str_ffn][2]:
                         print(f" - skipping known file: {str_ffn} == {dic_db[str_ffn]}")
                     else:
-                        print(f" - Rescanning because time or size seems to have changed: {str_ffn}")
+                        print(f"WTF: {tim == dic_db[str_ffn][1]} and {str(type(siz))} == {str(type(dic_db[str_ffn][2]))}")
                 else:  # db don't know this file - add it.
                     add_file2db(str_ffn)
             if num_cntfil % 100 == 0:
