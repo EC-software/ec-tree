@@ -64,11 +64,13 @@ def add_file2db(str_ffn):
 def add_longhash_2_shorthash(shorthash):
     str_sql_sel = f"select * from files where shorthash = '{shorthash}'"
     for row in db.execute(str_sql_sel):
-        print(f"* {row}")
+        ##print(f"* {row}")
         if os.path.isfile(row[0]):
             str_longhash = co.hashafile(row[0], algorithm='sha1', max_chunks=1)
-            str_sql_update
-
+            str_sql_upd = f'UPDATE files SET longhash = "{str_longhash}" WHERE filename = "{row[0]}" and shorthash = "{shorthash}";'  # Name should be unique, but better safe than wrong
+            ##print(str_sql_upd)
+            db.execute(str_sql_upd)
+            db.commit()
 
 def scan_root(str_ri, lst_rx):
     """
@@ -94,19 +96,67 @@ def scan_root(str_ri, lst_rx):
                 if str_ffn in dic_db.keys():  # db knows this file
                     tim, siz = timeandsize(str_ffn)
                     if tim == dic_db[str_ffn][1] and siz == dic_db[str_ffn][2]:
-                        print(f" - skipping known file: {str_ffn} == {dic_db[str_ffn]}")
+                        pass  # print(f" - skipping known file: {str_ffn} == {dic_db[str_ffn]}")
                     else:
                         print(f"WTF: {tim == dic_db[str_ffn][1]} and {str(type(siz))} == {str(type(dic_db[str_ffn][2]))}")
                 else:  # db don't know this file - add it.
                     add_file2db(str_ffn)
-            if num_cntfil % 100 == 0:
+            if num_cntfil % 1000000 == 0:
                 print(f"Count: {num_cntfil}: {str_ffn}")
 
 def scan_rootlists(lst_ri, lst_rx):
+    """
+    Scan all roots in rootlist lst_ri, though never the exceptions in lst_rx
+    :param lst_ri:
+    :param lst_rx:
+    :return:
+    """
     for root in lst_ri:
         lst_rxs = [tok for tok in lst_rx if tok.find(root) >= 0]
         print(f"\nscan_rootlists(); Clear to scan: ri: {root}, xs: {lst_rxs}")
         scan_root(root, lst_rxs)
+
+
+def prioritize_candidates(lst_cand):
+    """ For a list of candidates, assign priority to each
+    The more priority, the less likely to get kicked ...
+    :param lst_cand:
+    :return:
+    """
+    print(f"\nprioritize_candidates(); len = {len(lst_cand)}")
+    for n in range(len(lst_cand)):
+        nc = list(lst_cand[n])
+        nc.insert(0,0)
+        lst_cand[n] = nc
+    for cand in lst_cand:
+        # some text adds p
+        if cand[1].find("Okay") > -1:
+            cand[0] += 10
+        if cand[1].lower().find("serie") > -1:
+            cand[0] += 10
+        if cand[1].find("__NAM__") > -1:
+            cand[0] += 10
+        if cand[1].find("BIX_") > -1:
+            cand[0] += 10
+        if cand[1].find("REF_") > -1:
+            cand[0] += 10
+        # some text cost p
+        if any([cand[1].find(f"-{n}") > -1 for n in range(9)]):
+            cand[0] -= 5
+        if cand[1].find("output") > -1:
+            cand[0] -= 6
+        if cand[1].find(".part") > -1:
+            cand[0] -= 9
+        # deeper path adds p
+        cand[0] += cand[1].count(os.sep)
+    # If still even, older is better
+    lst_top = [cand for cand in sorted(lst_cand, reverse=True)]
+    if lst_top[0][0] == lst_top[1][0]:  # No winner
+        if lst_top[0][2] < lst_top[1][2]:  # head is oldest
+            lst_top[0][0] += 1
+        else:
+            lst_top[1][0] += 1
+    return lst_top
 
 if __name__ == '__main__':
 
@@ -117,12 +167,32 @@ if __name__ == '__main__':
     # fill/update the db
     lst_ri, lst_rx = make_rootlists()
     print(f"main(); Go w: {lst_ri, lst_rx}")
-    ##scan_rootlists(lst_ri, lst_rx)
+    scan_rootlists(lst_ri, lst_rx)
 
-    # Look for collisions
+    # Look for short collisions
+    print(f"Look for short collisions...")
     str_sql = f"SELECT * FROM collision_short"
     for row in db.execute(str_sql):
-        ##print(f"scan_root(); known file: {row}")
-        if row[0] > 3:  # several files with this short-hash  ToDo reset to 1
-            print(row)
-            add_longhash_2_shorthash(row[1])
+        # print(f"main(); short collision: {row}")
+        add_longhash_2_shorthash(row[1])
+
+    # Look for long collisions
+    print(f"Look for Long collisions")
+    str_sql_sellong = f"SELECT * FROM collision_long;"
+    num_space = 0
+    lst_kill = list()
+    for row_long in db.execute(str_sql):
+        lst_cand = list()
+        str_sql_selcand = f'SELECT * from files where longhash = "{row_long[1]}"'
+        for row_cand in db.execute(str_sql_selcand):
+            lst_cand.append(row_cand)
+        # Handle candidates
+        ##print("------")
+        lst_cand = prioritize_candidates(lst_cand)  # Remember Priority added to head, so all other shift +1
+        for cand in sorted(lst_cand, reverse=True):
+            print(f" << {cand}")
+        num_space += sum([itm[3] for itm in sorted(lst_cand, reverse=True)][1:])
+        lst_kill.extend([itm[1] for itm in sorted(lst_cand, reverse=True)][1:])
+    print(f"space: {num_space}")
+    for kill in lst_kill:
+        print(f'rm "{kill}"')
