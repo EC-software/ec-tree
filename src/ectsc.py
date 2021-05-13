@@ -48,12 +48,12 @@ def scan_file(str_ffn):
     except FileNotFoundError:  # some files are very temporary ...
         return "", "", "", "", str_scantime
 
-def add_file2db(str_ffn):
-    str_ffn = str_ffn.replace("'", "")  # ToDo This is not a solid way to handle filenames that include '
+def add_file2db(str_ffn, db):
+    # print(f"Add file: {str_ffn}")
+    str_fields = "filename, filetime, filesize, shorthash, longhash, scantime"
     try:
-        ##print(f"Add file: {str_ffn}")
-        str_fields = "filename, filetime, filesize, shorthash, longhash, scantime"
         str_filetime, str_filesize, str_shorthas, str_longhash, str_scantime = scan_file(str_ffn)
+        str_ffn = str_ffn.replace("'", "''")  # ToDo This is not a solid way to handle filenames that include '
         str_sql = f"INSERT INTO files ({str_fields}) VALUES ('{str_ffn}', '{str_filetime}', '{str_filesize}', '{str_shorthas}', '{str_longhash}', '{str_scantime}');"
         print(f"add_file2db(); sql: {str_sql}")
         db.execute(str_sql)
@@ -61,8 +61,8 @@ def add_file2db(str_ffn):
     except FileNotFoundError:
         pass  # some files are very temporary ...
 
-def add_longhash_2_shorthash(shorthash):
-    str_sql_sel = f"select * from files where shorthash = '{shorthash}'"
+def add_longhash_2_shorthash(shorthash, db):
+    str_sql_sel = f"SELECT * FROM files WHERE shorthash = '{shorthash}'"
     for row in db.execute(str_sql_sel):
         ##print(f"* {row}")
         if os.path.isfile(row[0]):
@@ -72,7 +72,7 @@ def add_longhash_2_shorthash(shorthash):
             db.execute(str_sql_upd)
             db.commit()
 
-def scan_root(str_ri, lst_rx):
+def scan_root(str_ri, lst_rx, db):
     """
     Scan one root-dir lst_ri, but skipping sub-dirs listed in lst_rx
     :param str_ri: string, the root dir
@@ -84,8 +84,20 @@ def scan_root(str_ri, lst_rx):
     dic_db = dict()  # dic by ffn of files known to the db
     str_sql = f"SELECT * FROM files where filename like '{str_ri}%'"
     for row in db.execute(str_sql):
-        ##print(f"scan_root(); known file: {row}")
         dic_db[row[0]] = row
+    # Remove files that no longer exist
+    lst_del_this = list()
+    for str_ffn_db in dic_db.keys():
+        print(f" -- {str_ffn_db}")
+        if not os.path.isfile(str_ffn_db):
+            lst_del_this.append(str_ffn_db)
+            str_ffn_db__sql = str_ffn_db.replace("'", "''")
+            str_sql = f"DELETE FROM files WHERE filename='{str_ffn_db__sql}';"
+            print(str_sql)
+            db.execute(str_sql)
+            db.commit()
+    for itm in lst_del_this:  # cant change iterable from inside loop
+        del dic_db[itm]
     # Walk the root-dir
     num_cntfil = 0
     for root, dirs, files in os.walk(str_ri):
@@ -96,15 +108,15 @@ def scan_root(str_ri, lst_rx):
                 if str_ffn in dic_db.keys():  # db knows this file
                     tim, siz = timeandsize(str_ffn)
                     if tim == dic_db[str_ffn][1] and siz == dic_db[str_ffn][2]:
-                        pass  # print(f" - skipping known file: {str_ffn} == {dic_db[str_ffn]}")
+                        pass  # print(f" - skipping known file: {str_ffn} == {dic_db[str_ffn]}")  #
                     else:
-                        print(f"WTF: {tim == dic_db[str_ffn][1]} and {str(type(siz))} == {str(type(dic_db[str_ffn][2]))}")
+                        print(f"WTF: tim? {tim == dic_db[str_ffn][1]} siz? {str(type(siz))} == {str(type(dic_db[str_ffn][2]))}")
                 else:  # db don't know this file - add it.
-                    add_file2db(str_ffn)
+                    add_file2db(str_ffn, db)
             if num_cntfil % 1000000 == 0:
                 print(f"Count: {num_cntfil}: {str_ffn}")
 
-def scan_rootlists(lst_ri, lst_rx):
+def scan_rootlists(lst_ri, lst_rx, db):
     """
     Scan all roots in rootlist lst_ri, though never the exceptions in lst_rx
     :param lst_ri:
@@ -114,7 +126,7 @@ def scan_rootlists(lst_ri, lst_rx):
     for root in lst_ri:
         lst_rxs = [tok for tok in lst_rx if tok.find(root) >= 0]
         print(f"\nscan_rootlists(); Clear to scan: ri: {root}, xs: {lst_rxs}")
-        scan_root(root, lst_rxs)
+        scan_root(root, lst_rxs, db)
 
 
 def prioritize_candidates(lst_cand):
@@ -158,23 +170,23 @@ def prioritize_candidates(lst_cand):
             lst_top[1][0] += 1
     return lst_top
 
-if __name__ == '__main__':
+def main():
 
     db = co.db()
     print(f"SC has a SQLite connection: {db}")
-    print(f"argvar: {sys.argv[1:]}")
+    print(f"argvar: {sys.argv[1:]}")  # ToDo: Take argvar out of main()
 
     # fill/update the db
     lst_ri, lst_rx = make_rootlists()
     print(f"main(); Go w: {lst_ri, lst_rx}")
-    scan_rootlists(lst_ri, lst_rx)
+    scan_rootlists(lst_ri, lst_rx, db)
 
     # Look for short collisions
     print(f"Look for short collisions...")
     str_sql = f"SELECT * FROM collision_short"
     for row in db.execute(str_sql):
         # print(f"main(); short collision: {row}")
-        add_longhash_2_shorthash(row[1])
+        add_longhash_2_shorthash(row[1], db)
 
     # Look for long collisions
     print(f"Look for Long collisions")
@@ -196,3 +208,6 @@ if __name__ == '__main__':
     print(f"space: {num_space}")
     for kill in lst_kill:
         print(f'rm "{kill}"')
+
+if __name__ == '__main__':
+    main()
