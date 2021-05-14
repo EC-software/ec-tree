@@ -13,7 +13,7 @@ import ectcommon as co
 max_chunks = 1  # The sample-size defining short-hash, where long-hash always is the entire file.
 
 
-def make_rootlists():
+def make_rootlists(db):
     """ Look at argv and make a 1 element root list of it, if missing make root list from db """
     lst_i, lst_x = list(), list()
     if len(sys.argv) > 1:
@@ -27,7 +27,6 @@ def make_rootlists():
                 lst_x.append(row[1])
             else:
                 print(f"Unexpected mode: {row[0]} in {row}")
-            ##print(f"{lst_i}\n{lst_x}")
     return lst_i, lst_x
 
 def timeandsize(str_ffn):
@@ -55,7 +54,7 @@ def add_file2db(str_ffn, db):
         str_filetime, str_filesize, str_shorthas, str_longhash, str_scantime = scan_file(str_ffn)
         str_ffn = str_ffn.replace("'", "''")  # ToDo This is not a solid way to handle filenames that include '
         str_sql = f"INSERT INTO files ({str_fields}) VALUES ('{str_ffn}', '{str_filetime}', '{str_filesize}', '{str_shorthas}', '{str_longhash}', '{str_scantime}');"
-        print(f"add_file2db(); sql: {str_sql}")
+        ##print(f"add_file2db(); sql: {str_sql}")
         db.execute(str_sql)
         db.commit()
     except FileNotFoundError:
@@ -88,12 +87,10 @@ def scan_root(str_ri, lst_rx, db):
     # Remove files that no longer exist
     lst_del_this = list()
     for str_ffn_db in dic_db.keys():
-        print(f" -- {str_ffn_db}")
         if not os.path.isfile(str_ffn_db):
             lst_del_this.append(str_ffn_db)
             str_ffn_db__sql = str_ffn_db.replace("'", "''")
             str_sql = f"DELETE FROM files WHERE filename='{str_ffn_db__sql}';"
-            print(str_sql)
             db.execute(str_sql)
             db.commit()
     for itm in lst_del_this:  # cant change iterable from inside loop
@@ -136,39 +133,48 @@ def prioritize_candidates(lst_cand):
     :return:
     """
     print(f"\nprioritize_candidates(); len = {len(lst_cand)}")
-    for n in range(len(lst_cand)):
-        nc = list(lst_cand[n])
-        nc.insert(0,0)
-        lst_cand[n] = nc
-    for cand in lst_cand:
-        # some text adds p
-        if cand[1].find("Okay") > -1:
-            cand[0] += 10
-        if cand[1].lower().find("serie") > -1:
-            cand[0] += 10
-        if cand[1].find("__NAM__") > -1:
-            cand[0] += 10
-        if cand[1].find("BIX_") > -1:
-            cand[0] += 10
-        if cand[1].find("REF_") > -1:
-            cand[0] += 10
-        # some text cost p
-        if any([cand[1].find(f"-{n}") > -1 for n in range(9)]):
-            cand[0] -= 5
-        if cand[1].find("output") > -1:
-            cand[0] -= 6
-        if cand[1].find(".part") > -1:
-            cand[0] -= 9
-        # deeper path adds p
-        cand[0] += cand[1].count(os.sep)
-    # If still even, older is better
-    lst_top = [cand for cand in sorted(lst_cand, reverse=True)]
-    if lst_top[0][0] == lst_top[1][0]:  # No winner
-        if lst_top[0][2] < lst_top[1][2]:  # head is oldest
-            lst_top[0][0] += 1
-        else:
-            lst_top[1][0] += 1
-    return lst_top
+    if len(lst_cand) > 1:
+        for n in range(len(lst_cand)):
+            nc = list(lst_cand[n])
+            nc.insert(0,0)
+            lst_cand[n] = nc
+        for cand in lst_cand:
+            # some text adds p
+            if cand[1].find("Okay") > -1:
+                cand[0] += 10
+            if cand[1].lower().find("serie") > -1:
+                cand[0] += 10
+            if cand[1].find("__NAM__") > -1:
+                cand[0] += 10
+            if cand[1].find("BIX_") > -1:
+                cand[0] += 10
+            if cand[1].find("REF_") > -1:
+                cand[0] += 10
+            if cand[1].find("veracrypt1") > -1:
+                cand[0] += 100
+            if cand[1].find("veracrypt2") > -1:
+                cand[0] += -10
+            # some text cost p
+            if any([cand[1].find(f"-{n}") > -1 for n in range(9)]):
+                cand[0] -= 5
+            if cand[1].find("DEL") > -1:
+                cand[0] -= 10
+            if cand[1].find("output") > -1:
+                cand[0] -= 6
+            if cand[1].find(".part") > -1:
+                cand[0] -= 9
+            # deeper path adds p
+            cand[0] += cand[1].count(os.sep)
+        # If still even, older is better
+        lst_top = [cand for cand in sorted(lst_cand, reverse=True)]
+        if lst_top[0][0] == lst_top[1][0]:  # No winner
+            if lst_top[0][2] < lst_top[1][2]:  # head is oldest
+                lst_top[0][0] += 1
+            else:
+                lst_top[1][0] += 1
+        return lst_top
+    else:  # Too few to prioritize
+        return lst_cand  # return unchanged
 
 def main():
 
@@ -177,7 +183,7 @@ def main():
     print(f"argvar: {sys.argv[1:]}")  # ToDo: Take argvar out of main()
 
     # fill/update the db
-    lst_ri, lst_rx = make_rootlists()
+    lst_ri, lst_rx = make_rootlists(db)
     print(f"main(); Go w: {lst_ri, lst_rx}")
     scan_rootlists(lst_ri, lst_rx, db)
 
