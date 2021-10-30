@@ -1,5 +1,12 @@
 
-""" Scan """
+""" EC tree Scan
+    This is the one you run... """
+
+__version__ = "0.2.0"
+
+# History
+# ver. 0.1 Init working version
+# ver. 0.2 Handles if existing disk-files change
 
 import datetime
 import os
@@ -93,7 +100,7 @@ def scan_root(str_ri, lst_rx, db):
             str_sql = f"DELETE FROM files WHERE filename='{str_ffn_db__sql}';"
             db.execute(str_sql)
             db.commit()
-    for itm in lst_del_this:  # cant change iterable from inside loop
+    for itm in lst_del_this:  # can't change iterable from inside loop
         del dic_db[itm]
     # Walk the root-dir
     num_cntfil = 0
@@ -103,11 +110,17 @@ def scan_root(str_ri, lst_rx, db):
             str_ffn = os.path.join(root, str_fn)
             if not any([str_ffn.startswith(x) for x in lst_rx]):  # if the file is not excluded
                 if str_ffn in dic_db.keys():  # db knows this file
+                    obj_bdg = dic_db[str_ffn]
                     tim, siz = timeandsize(str_ffn)
                     if tim == dic_db[str_ffn][1] and siz == dic_db[str_ffn][2]:
                         pass  # print(f" - skipping known file: {str_ffn} == {dic_db[str_ffn]}")  #
                     else:
-                        print(f"WTF: tim? {tim == dic_db[str_ffn][1]} siz? {str(type(siz))} == {str(type(dic_db[str_ffn][2]))}")
+                        ## print(f"WTF: tim? {tim == dic_db[str_ffn][1]} siz? {siz == dic_db[str_ffn][2]} @ ffn: {str_ffn}")
+                        # time or date have changed - so re-scanning file, and update DB.
+                        str_sql = f"DELETE FROM files WHERE filename='{str_ffn}';"
+                        db.execute(str_sql)
+                        db.commit()
+                        add_file2db(str_ffn, db)
                 else:  # db don't know this file - add it.
                     add_file2db(str_ffn, db)
             if num_cntfil % 1000000 == 0:
@@ -159,6 +172,8 @@ def prioritize_candidates(lst_cand):
                 cand[0] -= 5
             if cand[1].find("DEL") > -1:
                 cand[0] -= 10
+            if cand[1].find("copy") > -1:
+                cand[0] -= 5
             if cand[1].find("output") > -1:
                 cand[0] -= 6
             if cand[1].find(".part") > -1:
