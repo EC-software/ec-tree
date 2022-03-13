@@ -1,6 +1,6 @@
 
 """ EC tree Scan
-    This is the one you run... """
+    This is the one you run to find duplicates... """
 
 __version__ = "0.2.0"
 
