@@ -1,6 +1,6 @@
 import os
 
-str_bad = ")(!'&%¤#"
+str_bad = ")(!'&%¤#+*‿’▶►◄`,😻🛁•▷🥇"
 
 num_cntfil = 0
 for root, dirs, files in os.walk("/home/output"):

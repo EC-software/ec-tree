@@ -143,3 +143,4 @@ cython_debug/
 # private
 /.idea
 /.idea/.gitignore
+/src/.ectree.sqlite

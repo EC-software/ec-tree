@@ -10,7 +10,7 @@ import sys
 def db():
     """
     Create connection to the db
-    :return: conection
+    :return: connection
     """
     import configparser
 
@@ -25,6 +25,7 @@ def db():
                 str_dbfn = cfg['sqlite']['name']
                 if '~' in str_dbfn:
                     str_dbfn = str_dbfn.replace('~', os.path.expanduser("~"))
+                print(f"db() opened {str_dbfn} found in {FN}")
                 return sqlite3.connect(str_dbfn)  # Also creates the DB if not exists
             else:
                 print(".conf SQLite entry, holds no name")
