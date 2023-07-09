@@ -47,10 +47,13 @@ def hashafile(str_full_path, algorithm='md5', max_chunks=0):
         hash_alg = hashlib.md5()  # It's our default
     with open(str_full_path, "rb") as f:
         num_chunk = 0
-        for chunk in iter(lambda: f.read(65536), b""):  # 64k buffer
-            hash_alg.update(chunk)
-            num_chunk += 1
-            if max_chunks > 0 and num_chunk >= max_chunks:
-                return hash_alg.hexdigest()
+        try:
+            for chunk in iter(lambda: f.read(32768), b""):  # 64k=65536 buffer
+                hash_alg.update(chunk)
+                num_chunk += 1
+                if max_chunks > 0 and num_chunk >= max_chunks:
+                    return hash_alg.hexdigest()
+        except OSError:
+            print(f"OSError: {str_full_path}")
     return hash_alg.hexdigest()
 

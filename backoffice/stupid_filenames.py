@@ -3,7 +3,7 @@ import os
 str_bad = ")(!'&%¤#+*‿’▶►◄`,😻🛁•▷🥇"
 
 num_cntfil = 0
-for root, dirs, files in os.walk("/home/output"):
+for root, dirs, files in os.walk("/media/veracrypt1"):  # "/home/output"):
     for str_fn in files:
         if any([tok in str_fn for tok in str_bad]):
             print(str_fn)
