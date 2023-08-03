@@ -20,21 +20,21 @@ import ectcommon as co
 max_chunks = 1  # The sample-size defining short-hash, where long-hash always is the entire file.
 
 
-def make_rootlists_OLD(db):
-    """ Look at argv and make a 1 element root list of it, if missing make root list from db """
-    lst_i, lst_x = list(), list()
-    if len(sys.argv) > 1:
-        if os.path.isdir(sys.argv[1]):
-            lst_i.append(sys.argv[1])
-    else:  # build from db
-        for row in db.execute('SELECT * FROM roots'):
-            if row[0].upper() == 'I':
-                lst_i.append(row[1])
-            elif row[0].upper() == 'X':
-                lst_x.append(row[1])
-            else:
-                print(f"Unexpected mode: {row[0]} in {row}")
-    return lst_i, lst_x
+# def make_rootlists_OLD(db):
+#     """ Look at argv and make a 1 element root list of it, if missing make root list from db """
+#     lst_i, lst_x = list(), list()
+#     if len(sys.argv) > 1:
+#         if os.path.isdir(sys.argv[1]):
+#             lst_i.append(sys.argv[1])
+#     else:  # build from db
+#         for row in db.execute('SELECT * FROM roots'):
+#             if row[0].upper() == 'I':
+#                 lst_i.append(row[1])
+#             elif row[0].upper() == 'X':
+#                 lst_x.append(row[1])
+#             else:
+#                 print(f"Unexpected mode: {row[0]} in {row}")
+#     return lst_i, lst_x
 
 
 def make_rootlists(db):
@@ -203,9 +203,9 @@ def prioritize_candidates(lst_cand):
             if any([cand[1].find(f"-{n}") > -1 for n in range(9)]):
                 cand[0] -= 5
             if cand[1].find("DEL") > -1:
-                cand[0] -= 10
+                cand[0] -= 100
             if cand[1].find("copy") > -1:
-                cand[0] -= 5
+                cand[0] -= 50
             if cand[1].find("output") > -1:
                 cand[0] -= 6
             if cand[1].find(".part") > -1:
