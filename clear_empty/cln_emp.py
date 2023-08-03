@@ -2,8 +2,8 @@
 
 import os
 import string
-src_dir = "/media/veracrypt2/NCLN_3" # /.TMP/NEWS_1"):
-ZONEY = "/media/veracrypt2/NCLN_3"
+src_dir = r"/csmsp/.TMP"  # "/media/veracrypt2/NCLN_3" # ):
+ZONEY = r"/csmsp/.TMP"  # "/media/veracrypt2/NCLN_3"
 # src_dir = "/media/veracrypt1" # "/home/output/.TMP" # /.TMP/NEWS_1"):
 # ZONEY = "/media/veracrypt1" # "/home/output/.TMP"
 
