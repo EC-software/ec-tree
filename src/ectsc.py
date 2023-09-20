@@ -87,7 +87,7 @@ def add_file2db(str_ffn, db):
         str_filetime, str_filesize, str_shorthas, str_longhash, str_scantime = scan_file(str_ffn)
         str_ffn = str_ffn.replace("'", "''")  # ToDo This is not a solid way to handle filenames that include '
         str_sql = f"INSERT INTO files ({str_fields}) VALUES ('{str_ffn}', '{str_filetime}', '{str_filesize}', '{str_shorthas}', '{str_longhash}', '{str_scantime}');"
-        ##print(f"add_file2db(); sql: {str_sql}")
+        # # print(f"add_file2db(); sql: {str_sql}")
         db.execute(str_sql)
         db.commit()
     except FileNotFoundError:
@@ -97,11 +97,11 @@ def add_file2db(str_ffn, db):
 def add_longhash_2_shorthash(shorthash, db):
     str_sql_sel = f"SELECT * FROM files WHERE shorthash = '{shorthash}'"
     for row in db.execute(str_sql_sel):
-        ##print(f"* {row}")
+        # # print(f"* {row}")
         if os.path.isfile(row[0]):
             str_longhash = co.hashafile(row[0], algorithm='sha1', max_chunks=1)
             str_sql_upd = f'UPDATE files SET longhash = "{str_longhash}" WHERE filename = "{row[0]}" and shorthash = "{shorthash}";'  # Name should be unique, but better safe than wrong
-            ##print(str_sql_upd)
+            # print(str_sql_upd)
             db.execute(str_sql_upd)
             db.commit()
 
@@ -146,7 +146,7 @@ def scan_root(str_ri, lst_rx, lst_rxe, db):
                         if tim == dic_db[str_ffn][1] and siz == dic_db[str_ffn][2]:
                             pass  # print(f" - skipping known file: {str_ffn} == {dic_db[str_ffn]}")  #
                         else:
-                            ## print(f"WTF: tim? {tim == dic_db[str_ffn][1]} siz? {siz == dic_db[str_ffn][2]} @ ffn: {str_ffn}")
+                            # # print(f"WTF: tim? {tim == dic_db[str_ffn][1]} siz? {siz == dic_db[str_ffn][2]} @ ffn: {str_ffn}")
                             # time or date have changed - so re-scanning file, and update DB.
                             str_sql = f"DELETE FROM files WHERE filename='{str_ffn}';"
                             db.execute(str_sql)
@@ -181,7 +181,7 @@ def prioritize_candidates(lst_cand):
     if len(lst_cand) > 1:
         for n in range(len(lst_cand)):
             nc = list(lst_cand[n])
-            nc.insert(0,0)
+            nc.insert(0, 0)
             lst_cand[n] = nc
         for cand in lst_cand:
             # some text adds p
@@ -254,7 +254,7 @@ def main():
         for row_cand in db.execute(str_sql_selcand):
             lst_cand.append(row_cand)
         # Handle candidates
-        ##print("------")
+        # # print("------")
         lst_cand = prioritize_candidates(lst_cand)  # Remember Priority added to head, so all other shift +1
         for cand in sorted(lst_cand, reverse=True):
             print(f" << {cand}")
