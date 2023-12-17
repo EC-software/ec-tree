@@ -76,8 +76,8 @@ def tco(tr=TR, tt=TT) -> dict:
                         dic_ret[ffn__]['xsts'] = 'refe'
             else:
                 dic_ret[str_dir_]['xsts'] = 'refe'
-    print("<<< End R scan >>>")
-    pprint.pprint(dic_ret)
+    # print("<<< End R scan >>>")
+    # pprint.pprint(dic_ret)
     for path, dirnames, filenames in os.walk(tt):  # Walk target to find target-only objects
         str_dirt = str(path)
         str_dirr = str_dirt.replace(tt, tr)
@@ -90,24 +90,45 @@ def tco(tr=TR, tt=TT) -> dict:
             ffn__ = ffn_r.replace(tr, '')
             if ffn__ not in dic_ret.keys():
                 dic_ret[ffn__] = {'otyp': 'fil', 'xsts': 'trgt'}
-    print("<<< End T scan >>>")
+    # print("<<< End T scan >>>")
     return dic_ret
 
 
 def tcd(tco) -> str:
     """ Read a tco dictionary from function tco(), and turn it into a human friendly description
     Return: str: text description of the contents in the tco """
-
-    return str(tco)
+    str_tcd = "# Header"
+    for k in sorted(tco.keys()):
+        if tco[k]['otyp'] == 'dir':
+            otyp = 'd'
+            if tco[k]['xsts'] == 'refe':
+                xsts = r'//'
+            elif tco[k]['xsts'] == 'trgt':
+                xsts = r'\\'
+            elif tco[k]['xsts'] == 'both':
+                xsts = r'=='
+        elif tco[k]['otyp'] == 'fil':
+            otyp = 'f'
+            if tco[k]['xsts'] == 'refe':
+                xsts = r'//'
+            elif tco[k]['xsts'] == 'trgt':
+                xsts = r'\\'
+            elif tco[k]['xsts'] == 'both':
+                if 'cofp' in tco[k].keys():
+                    xsts = f"{tco[k]['cofp']['refe_mtime']}{tco[k]['cofp']['refe_size']}"
+                else:
+                    xsts = r'**'
+        str_tcd += f"\n{otyp}\t{xsts}\t{k}"
+    return str_tcd
 
 if __name__ == "__main__":
     TR = "/home/martin/Repos/ec-tree/treecomp/data/R"
     TT = "/home/martin/Repos/ec-tree/treecomp/data/T"
-    pprint.pprint(tco(TR, TT))
-    # print(tcd(tco(TR, TT)))
-
-    # for root, dirs, files in os.walk(tr, topdown=True, onerror=None, followlinks=False):  # Walk Reference dir
-    #     for file in files:
-    #         ffn = os.path.join(root, file)
-    #         if os.path.isfile(ffn):
-    #             print(f"fil: {ffn}")
+    TR = "/home/martin/Repos/bix"
+    TT = "/home/martin/Repos/bix_2"
+    print("--- tco() ---")
+    tco_ = tco(TR, TT)
+    # pprint.pprint(tco_)
+    print("--- tcd() ---")
+    tcd_ = tcd(tco_)
+    print(tcd_)
