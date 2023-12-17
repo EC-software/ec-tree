@@ -24,7 +24,35 @@ def tco(tr=TR, tt=TT) -> dict:
         return dict with result """
         assert os.path.isfile(ffna)
         assert os.path.isfile(ffnb)
-        return {}
+        stat_a = os.stat(ffna)
+        stat_b = os.stat(ffnb)
+        # print(f"\tR: {stat_a})")
+        # print(f"\tT: {stat_b})")
+        dic_cofp = dict()
+        # st_mode - File mode: file type and file mode bits (permissions).
+        # st_ino - Platform dependent, but if non-zero, uniquely identifies the file for a given value of st_dev. Typically: the inode number on Unix; the file index on Windows
+        # st_dev - Identifier of the device on which this file resides.
+        # st_nlink - Number of hard links.
+        # st_uid - User identifier of the file owner.
+        # st_gid - Group identifier of the file owner.
+        # st_size - Size of the file in bytes, if it is a regular file or a symbolic link. The size of a symbolic link is the length of the pathname it contains, without a terminating null byte.
+        if stat_a.st_size > stat_b.st_size:
+            dic_cofp['refe_size'] = '>'
+        elif stat_a.st_size < stat_b.st_size:
+            dic_cofp['refe_size'] = '<'
+        else:
+            dic_cofp['refe_size'] = '='
+        # st_atime - Time of most recent access expressed in seconds.
+        # st_mtime - Time of most recent content modification expressed in seconds.
+        if stat_a.st_mtime > stat_b.st_mtime:
+            dic_cofp['refe_mtime'] = '>'
+        elif stat_a.st_mtime < stat_b.st_mtime:
+            dic_cofp['refe_mtime'] = '<'
+        else:
+            dic_cofp['refe_mtime'] = '='
+        # st_ctime - Time of most recent metadata change expressed in seconds. Changed in version 3.12: st_ctime is deprecated on Windows. Use st_birthtime for the file creation time. In the future, st_ctime will contain the time of the most recent metadata change, as for other platforms.
+
+        return dic_cofp
 
     assert all(os.path.isdir(tok) for tok in [tr, tt])
     dic_ret = dict()
