@@ -97,7 +97,12 @@ def tco(tr=TR, tt=TT) -> dict:
 def tcd(tco) -> str:
     """ Read a tco dictionary from function tco(), and turn it into a human friendly description
     Return: str: text description of the contents in the tco """
-    str_tcd = "# Header"
+    str_tcd = "#\t   Legend ---------------------------------------------------"
+    str_tcd += "\n#\t\\\\ Only exist in Reference\n#\t// Only exist in Target\n#\t== Identical"
+    str_tcd += "\n#\t== (dir) exist both sides\n#\t== (file) Same Time and Size"
+    str_tcd += "\n#\t=. Same Age\n#\t<. Reference is Older\n#\t>. Reference is Newer"
+    str_tcd += "\n#\t.= Same Size\n#\t.< Reference is Smaller\n#\t.> Reference is Larger"
+    str_tcd += "\n#\t   -------------------------------------------------------"
     for k in sorted(tco.keys()):
         if tco[k]['otyp'] == 'dir':
             otyp = 'd'
@@ -124,8 +129,8 @@ def tcd(tco) -> str:
 if __name__ == "__main__":
     TR = "/home/martin/Repos/ec-tree/treecomp/data/R"
     TT = "/home/martin/Repos/ec-tree/treecomp/data/T"
-    TR = "/home/martin/Repos/bix"
-    TT = "/home/martin/Repos/bix_2"
+    # TR = "/home/martin/Repos/bix"
+    # TT = "/home/martin/Repos/bix_2"
     print("--- tco() ---")
     tco_ = tco(TR, TT)
     # pprint.pprint(tco_)
