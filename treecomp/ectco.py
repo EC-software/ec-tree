@@ -13,7 +13,8 @@ import pprint
 TR = ""  # Tree Reference
 TT = ""  # Tree Target
 
-def tco(tr=TR, tt=TT) -> dict:
+
+def tco(tr=TR, tt=TT, ignore=[]) -> dict:
     """ Compares two directories, recursively, and point out all similarities and differences
     Resulting data type is designed to be transformed to text description by function tcd()
     return dictionary of results """
@@ -57,39 +58,41 @@ def tco(tr=TR, tt=TT) -> dict:
     assert all(os.path.isdir(tok) for tok in [tr, tt])
     dic_ret = dict()
     for path, dirnames, filenames in os.walk(tr):  # Walk reference to establish basis
-        str_dirr = str(path)
-        str_dirt = str_dirr.replace(tr, tt)
-        str_dir_ = str_dirr.replace(tr, '')
-        if str_dir_ not in dic_ret.keys():
-            dic_ret[str_dir_] = {'otyp': 'dir'}
-            if os.path.isdir(str_dirt):  # Dir also in target
-                dic_ret[str_dir_]['xsts'] = 'both'
-                for file in filenames:  # check the files
-                    ffn_r = os.path.join(str_dirr, file)
-                    ffn_t = os.path.join(str_dirt, file)
-                    ffn__ = ffn_r.replace(tr, '')
-                    dic_ret[ffn__] = {'otyp': 'fil'}
-                    if os.path.isfile(ffn_t):
-                        dic_ret[ffn__]['xsts'] = 'both'
-                        dic_ret[ffn__]['cofp'] = cofp(ffn_r, ffn_t)
-                    else:
-                        dic_ret[ffn__]['xsts'] = 'refe'
-            else:
-                dic_ret[str_dir_]['xsts'] = 'refe'
+        if not any(ign in path for ign in ignore):
+            str_dirr = str(path)
+            str_dirt = str_dirr.replace(tr, tt)
+            str_dir_ = str_dirr.replace(tr, '')
+            if str_dir_ not in dic_ret.keys():
+                dic_ret[str_dir_] = {'otyp': 'dir'}
+                if os.path.isdir(str_dirt):  # Dir also in target
+                    dic_ret[str_dir_]['xsts'] = 'both'
+                    for file in filenames:  # check the files
+                        ffn_r = os.path.join(str_dirr, file)
+                        ffn_t = os.path.join(str_dirt, file)
+                        ffn__ = ffn_r.replace(tr, '')
+                        dic_ret[ffn__] = {'otyp': 'fil'}
+                        if os.path.isfile(ffn_t):
+                            dic_ret[ffn__]['xsts'] = 'both'
+                            dic_ret[ffn__]['cofp'] = cofp(ffn_r, ffn_t)
+                        else:
+                            dic_ret[ffn__]['xsts'] = 'refe'
+                else:
+                    dic_ret[str_dir_]['xsts'] = 'refe'
     # print("<<< End R scan >>>")
     # pprint.pprint(dic_ret)
     for path, dirnames, filenames in os.walk(tt):  # Walk target to find target-only objects
-        str_dirt = str(path)
-        str_dirr = str_dirt.replace(tt, tr)
-        str_dir_ = str_dirr.replace(tr, '')
-        if str_dir_ not in dic_ret.keys():
-            dic_ret[str_dir_] = {'otyp': 'dir', 'xsts': 'trgt'}
-        for file in filenames:  # check the files
-            # ffn_t = os.path.join(str_dirt, file)
-            ffn_r = os.path.join(str_dirr, file)
-            ffn__ = ffn_r.replace(tr, '')
-            if ffn__ not in dic_ret.keys():
-                dic_ret[ffn__] = {'otyp': 'fil', 'xsts': 'trgt'}
+        if not any(ign in path for ign in ignore):
+            str_dirt = str(path)
+            str_dirr = str_dirt.replace(tt, tr)
+            str_dir_ = str_dirr.replace(tr, '')
+            if str_dir_ not in dic_ret.keys():
+                dic_ret[str_dir_] = {'otyp': 'dir', 'xsts': 'trgt'}
+            for file in filenames:  # check the files
+                # ffn_t = os.path.join(str_dirt, file)
+                ffn_r = os.path.join(str_dirr, file)
+                ffn__ = ffn_r.replace(tr, '')
+                if ffn__ not in dic_ret.keys():
+                    dic_ret[ffn__] = {'otyp': 'fil', 'xsts': 'trgt'}
     # print("<<< End T scan >>>")
     return dic_ret
 
@@ -129,10 +132,11 @@ def tcd(tco) -> str:
 if __name__ == "__main__":
     TR = "/home/martin/Repos/ec-tree/treecomp/data/R"
     TT = "/home/martin/Repos/ec-tree/treecomp/data/T"
-    # TR = "/home/martin/Repos/bix"
-    # TT = "/home/martin/Repos/bix_2"
+    TR = "/home/martin/Repos/bix"
+    TT = "/home/martin/Repos/bix_2"
+    IG = ['.hg', '.git', '.idea', 'venv']
     print("--- tco() ---")
-    tco_ = tco(TR, TT)
+    tco_ = tco(TR, TT, IG)
     # pprint.pprint(tco_)
     print("--- tcd() ---")
     tcd_ = tcd(tco_)
