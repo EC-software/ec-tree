@@ -22,6 +22,8 @@ def tco(tr=TR, tt=TT) -> dict:
     def cofp(ffna, ffnb) -> dict:
         """ Compare file pair
         return dict with result """
+        assert os.path.isfile(ffna)
+        assert os.path.isfile(ffnb)
         return {}
 
     assert all(os.path.isdir(tok) for tok in [tr, tt])
@@ -35,14 +37,15 @@ def tco(tr=TR, tt=TT) -> dict:
             if os.path.isdir(str_dirt):  # Dir also in target
                 dic_ret[str_dir_]['xsts'] = 'both'
                 for file in filenames:  # check the files
-                    ffn_r = os.path.join(str_dir_, file)
+                    ffn_r = os.path.join(str_dirr, file)
                     ffn_t = os.path.join(str_dirt, file)
-                    dic_ret[ffn_r] = {'otyp': 'fil'}
+                    ffn__ = ffn_r.replace(tr, '')
+                    dic_ret[ffn__] = {'otyp': 'fil'}
                     if os.path.isfile(ffn_t):
-                        dic_ret[ffn_r]['xsts'] = 'both'
-                        dic_ret[ffn_r]['cofp'] = cofp(ffn_r, ffn_t)
+                        dic_ret[ffn__]['xsts'] = 'both'
+                        dic_ret[ffn__]['cofp'] = cofp(ffn_r, ffn_t)
                     else:
-                        dic_ret[ffn_r]['xsts'] = 'refe'
+                        dic_ret[ffn__]['xsts'] = 'refe'
             else:
                 dic_ret[str_dir_]['xsts'] = 'refe'
     print("<<< End R scan >>>")
