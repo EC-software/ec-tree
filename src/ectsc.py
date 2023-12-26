@@ -97,6 +97,7 @@ def scan_root(str_ri, lst_rx, lst_rxe, db):
     :return: tbd
     """
     print(f"scan_root(); Scanning: {str_ri, lst_rx, lst_rxe}")
+    # ToDo [] We should first see if the dir is available (mounted) - that would potentially save a lot of time
     # get db info on this dir
     dic_db = dict()  # dic by ffn of files known to the db
     str_sql = f"SELECT * FROM files where filename like '{str_ri}%'"
@@ -117,9 +118,9 @@ def scan_root(str_ri, lst_rx, lst_rxe, db):
     num_cntfil = 0
     for root, dirs, files in os.walk(str_ri):
         for str_fn in files:
-            if '.' in root:
-                # print(f"'.' in root: {root}")
-                continue
+            # if '.' in root:
+            #     # print(f"'.' in root: {root}")
+            #     continue
             num_cntfil += 1
             if not any([str_fn.endswith(e) for e in lst_rxe]):
                 str_ffn = os.path.join(root, str_fn)

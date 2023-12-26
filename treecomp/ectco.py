@@ -132,8 +132,8 @@ def tcd(tco) -> str:
 if __name__ == "__main__":
     TR = "/home/martin/Repos/ec-tree/treecomp/data/R"
     TT = "/home/martin/Repos/ec-tree/treecomp/data/T"
-    TR = "/home/martin/Repos/bix"
-    TT = "/home/martin/Repos/bix_2"
+    # TR = "/home/martin/Repos/bix"
+    # TT = "/home/martin/Repos/bix_2"
     IG = ['.hg', '.git', '.idea', 'venv']
     print("--- tco() ---")
     tco_ = tco(TR, TT, IG)

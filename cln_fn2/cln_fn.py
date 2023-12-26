@@ -148,8 +148,8 @@ SUBST = {   "'": '',
             '🎩': '',
             '🐇': ''}
 
-ROOT = "/home/output/.TMP/"  # "/media/veracrypt1"  # "/run/media/martin/SAMSUNG"   # /.TMP/NEWS_1"
-ZONEY = "/home/output/.TMP/"  # "/media/veracrypt1"
+ROOT = "/cspsp/"  #"/home/output/.TMP/"  # "/media/veracrypt1"  # "/run/media/martin/SAMSUNG"   # /.TMP/NEWS_1"
+ZONEY = "/cspsp/"  #"/home/output/.TMP/"  # "/media/veracrypt1"
 
 print(f"Valid: {VALID}")
 print(f"NoVal: {''.join(SUBST.keys())}")
