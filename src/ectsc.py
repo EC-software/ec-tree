@@ -21,7 +21,7 @@ max_chunks = 1  # The sample-size defining short-hash, where long-hash always is
 
 
 def make_rootlists(db):
-    """ Look at argv and make a 1 element root list of it, if missing make root list from db """
+    """ Look at argv and make a 1-element root list of it, if missing make a root list from db """
     lst_i, lst_x, lst_xe = list(), list(), list()
     if len(sys.argv) > 1:
         if os.path.isdir(sys.argv[1]):
@@ -51,8 +51,6 @@ def timeandsize(str_ffn):
 
 
 def scan_file(str_ffn):
-    # if "Glasvinge" in str_ffn:
-    #     print(f"G: {str_ffn}")
     str_scantime = datetime.datetime.now().isoformat()
     str_filetime, str_filesize = timeandsize(str_ffn)
     try:
@@ -70,7 +68,6 @@ def add_file2db(str_ffn, db):
         str_filetime, str_filesize, str_shorthas, str_longhash, str_scantime = scan_file(str_ffn)
         str_ffn = str_ffn.replace("'", "''")  # ToDo This is not a solid way to handle filenames that include '
         str_sql = f"INSERT INTO files ({str_fields}) VALUES ('{str_ffn}', '{str_filetime}', '{str_filesize}', '{str_shorthas}', '{str_longhash}', '{str_scantime}');"
-        # # print(f"add_file2db(); sql: {str_sql}")
         db.execute(str_sql)
         db.commit()
     except FileNotFoundError:
