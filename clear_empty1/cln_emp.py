@@ -2,6 +2,7 @@
 
 import os
 import string
+
 src_dir = r"/csmsp/.TMP"  # "/media/veracrypt2/NCLN_3" # ):
 ZONEY = r"/csmsp/.TMP"  # "/media/veracrypt2/NCLN_3"
 # src_dir = "/media/veracrypt1" # "/home/output/.TMP" # /.TMP/NEWS_1"):
@@ -20,6 +21,6 @@ for dirpath, _, _ in os.walk(src_dir, topdown=False):
         break
     try:
         os.rmdir(dirpath)
-        print(f"mkdir {dirpath}")
+        print(f"rmdir {dirpath}")
     except OSError as ex:
         pass  # print(f"Fail:: {ex}")
